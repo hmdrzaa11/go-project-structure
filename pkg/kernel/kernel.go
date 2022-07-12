@@ -2,6 +2,7 @@ package kernel
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -49,6 +50,21 @@ func (app *Application) Run() {
 	if err := app.Server.ListenAndServe(); err != nil {
 		app.Logger.Fatal(err.Error())
 	}
+}
+
+// Respond is used to send the outgoing response in success cases
+func (a *Application) Respond(w http.ResponseWriter, status int, data interface{}) {
+	w.Header().Set("Content-Type", a.Config.Http.Content)
+	w.WriteHeader(status)
+	if data != nil {
+		err := json.NewEncoder(w).Encode(data)
+		if err != nil {
+			a.Logger.Fatal(err.Error())
+			panic(err)
+		}
+		return
+	}
+
 }
 
 // Boot is going to start our app and set all the configs and return it

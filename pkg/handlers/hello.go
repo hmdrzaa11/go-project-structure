@@ -14,8 +14,11 @@ func NewProductHandler(app *kernel.Application) *Hello {
 	return &Hello{app}
 }
 
-func (p *Hello) HelloWorld(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", p.app.Config.Http.Content)
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Hello from server!"))
+func (h *Hello) HelloWorld(w http.ResponseWriter, r *http.Request) {
+	msg := struct {
+		Message string `json:"message"`
+	}{
+		Message: "Hello World!",
+	}
+	h.app.Respond(w, http.StatusOK, msg)
 }
