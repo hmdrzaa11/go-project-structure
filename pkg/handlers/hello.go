@@ -4,14 +4,16 @@ import (
 	"net/http"
 
 	"github.com/hmdrzaa11/example-go-api/pkg/kernel"
+	"github.com/hmdrzaa11/example-go-api/pkg/services"
 )
 
 type Hello struct {
-	app *kernel.Application
+	app        *kernel.Application
+	userServie services.UserService
 }
 
-func NewProductHandler(app *kernel.Application) *Hello {
-	return &Hello{app}
+func NewProductHandler(app *kernel.Application, userService services.UserService) *Hello {
+	return &Hello{app, userService}
 }
 
 func (h *Hello) HelloWorld(w http.ResponseWriter, r *http.Request) {

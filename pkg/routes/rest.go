@@ -3,15 +3,16 @@ package routes
 import (
 	"net/http"
 
+	"github.com/hmdrzaa11/example-go-api/pkg/domains"
 	"github.com/hmdrzaa11/example-go-api/pkg/handlers"
 	"github.com/hmdrzaa11/example-go-api/pkg/kernel"
+	"github.com/hmdrzaa11/example-go-api/pkg/services"
 )
 
 // LoadRoutes attach all the REST api routes to the router
 func LoadRoutes(app *kernel.Application) {
-	serviceRouter := app.Router.Methods(http.MethodGet).Subrouter() //to handle all "GET" verbs
-	ph := handlers.NewProductHandler(app)
+	usersService := services.NewDefaultUserService(domains.NewUserRepository(app.DB))
+	ph := handlers.NewProductHandler(app, usersService) //now we pass the service into handler
 
-	//attach your routes
-	serviceRouter.HandleFunc("/", ph.HelloWorld).Name("api:products")
+	app.Router.HandleFunc("/users", ph.HelloWorld).Methods(http.MethodGet)
 }

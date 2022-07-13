@@ -2,6 +2,7 @@ package kernel
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -13,6 +14,7 @@ import (
 	gohandlers "github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/hmdrzaa11/example-go-api/pkg/config"
+	"github.com/hmdrzaa11/example-go-api/pkg/database"
 	"go.uber.org/zap"
 )
 
@@ -22,6 +24,7 @@ type Application struct {
 	Router *mux.Router
 	Logger *zap.Logger
 	Config *config.Config
+	DB     *sql.DB
 }
 
 // GracefullShutdown is going to wait for signals to shutdown gracefully
@@ -72,15 +75,22 @@ func Boot() *Application {
 	configs := config.NewConfig()       //get our configs
 	router := mux.NewRouter()           //get our router
 	logger, err := zap.NewDevelopment() //get our logger
+	if err != nil {
+		panic(err)
+	}
+	db, err := database.NewDatabase(configs.App.DatabaseURI) //get a db client
+
+	if err != nil {
+		logger.Fatal(err.Error())
+		panic(err)
+	}
+
 	server := &http.Server{
 		Addr:         ":" + configs.App.Port,
 		Handler:      router,
 		ReadTimeout:  2 * time.Second,
 		WriteTimeout: 5 * time.Second,
 		IdleTimeout:  120 * time.Second,
-	}
-	if err != nil {
-		panic(err)
 	}
 	//set up CORS
 	corsHandler := gohandlers.CORS(gohandlers.AllowedOrigins([]string{"*"}))
@@ -91,5 +101,6 @@ func Boot() *Application {
 		Config: configs,
 		Logger: logger,
 		Server: server,
+		DB:     db.Client,
 	}
 }
