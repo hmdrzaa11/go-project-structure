@@ -12,6 +12,7 @@ type Photos struct {
 	client *http.Client
 }
 
+// NewPhotosApi returns a new photos service
 func NewPhotosApi() *Photos {
 	return &Photos{
 		client: &http.Client{
