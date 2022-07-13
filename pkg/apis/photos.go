@@ -25,10 +25,13 @@ func (p *Photos) GetAllPhotos(url string, wg *sync.WaitGroup) error {
 	if err != nil {
 		return err
 	}
+
+	defer res.Body.Close()
 	bs, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return nil
 	}
+
 	fmt.Println(string(bs))
 	wg.Done()
 	return nil
